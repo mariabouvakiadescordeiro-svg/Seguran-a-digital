@@ -1,53 +1,172 @@
 
-<div class="parametro-senha">
-    <h4 class="parametro-senha__titulo">Número de caracteres</h4>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Senhas</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="main.js" defer></script>
+</head>
+<body>
+    <main class="container">
+        <header class="cabecalho">
+            <div class="icone">✦</div>
+            <p class="subtitulo">SEGURANÇA DIGITAL</p>
+            <h1>Gerador de <span>Senhas</span></h1>
+            <p class="descricao">
+                Crie uma senha forte e proteja suas informações.
+            </p>
+        </header>
 
-    <div class="parametro-senha-botoes">
-        <button type="button" class="parametro-senha__botao">-</button>
-        <p class="parametro-senha__texto">12</p>
-        <button type="button" class="parametro-senha__botao">+</button>
-    </div>
-</div>
+        <section class="cartao">
+            <div class="titulo-secao">
+                <h2>Sua senha</h2>
+                <span class="etiqueta">PERSONALIZÁVEL</span>
+            </div>
 
-<div class="parametro-senha">
-    <h4 class="parametro-senha__titulo">Características da senha</h4>
+            <div class="campo-senha">
+                <input
+                    type="text"
+                    id="campo-senha"
+                    aria-label="Senha gerada"
+                    readonly
+                    spellcheck="false"
+                >
+                <button type="button" id="copiar-senha" class="botao-copiar">
+                    Copiar
+                </button>
+            </div>
 
-    <div class="parametro-senha-checkbox">
-        <input id="maiusculo" name="maiusculo" type="checkbox" class="checkbox" checked>
-        <label for="maiusculo">Letras maiúsculas</label>
-    </div>
+            <p id="mensagem-copia" class="mensagem" aria-live="polite"></p>
 
-    <div class="parametro-senha-checkbox">
-        <input id="minusculo" name="minusculo" type="checkbox" class="checkbox">
-        <label for="minusculo">Letras minúsculas</label>
-    </div>
+            <div class="divisor"></div>
 
-    <div class="parametro-senha-checkbox">
-        <input id="numero" name="numero" type="checkbox" class="checkbox">
-        <label for="numero">Números</label>
-    </div>
+            <section class="parametro-senha">
+                <div class="linha-titulo">
+                    <h2>Número de caracteres</h2>
+                    <span class="contador" id="valor-tamanho">12</span>
+                </div>
 
-    <div class="parametro-senha-checkbox">
-        <input id="simbolo" name="simbolo" type="checkbox" class="checkbox">
-        <label for="simbolo">Símbolos</label>
-    </div>
-</div>
+                <div class="controle-tamanho">
+                    <button
+                        type="button"
+                        class="parametro-senha__botao"
+                        id="diminuir"
+                        aria-label="Diminuir caracteres"
+                    >−</button>
 
-<div class="parametro-senha">
-    <h4 class="parametro-senha__titulo">Força da senha</h4>
+                    <input
+                        type="range"
+                        id="tamanho"
+                        min="1"
+                        max="20"
+                        value="12"
+                        aria-label="Tamanho da senha"
+                    >
 
-    <div class="barra"></div>
-    <div class="forca fraca"></div>
+                    <button
+                        type="button"
+                        class="parametro-senha__botao"
+                        id="aumentar"
+                        aria-label="Aumentar caracteres"
+                    >+</button>
+                </div>
 
-    <div class="parametro-senha-textos">
-        <p>Fraca</p>
-        <p>Média</p>
-        <p>Forte</p>
-    </div>
-</div>
+                <div class="limites">
+                    <span>1 caractere</span>
+                    <span>20 caracteres</span>
+                </div>
+            </section>
 
-<input name="senha" type="text" id="campo-senha" readonly>
+            <div class="divisor"></div>
 
-<p class="entropia"></p>
+            <section class="parametro-senha">
+                <h2>Características da senha</h2>
+                <p class="ajuda">Escolha os elementos da sua senha.</p>
 
-<script src="main.js"></script>
+                <div class="opcoes">
+                    <label class="opcao">
+                        <input id="maiusculo" class="checkbox"
+                            type="checkbox" checked>
+                        <span class="caixa-visual"></span>
+                        <span class="opcao-texto">
+                            <strong>Letras maiúsculas</strong>
+                            <small>ABCDEF</small>
+                        </span>
+                    </label>
+
+                    <label class="opcao">
+                        <input id="minusculo" class="checkbox"
+                            type="checkbox" checked>
+                        <span class="caixa-visual"></span>
+                        <span class="opcao-texto">
+                            <strong>Letras minúsculas</strong>
+                            <small>abcdef</small>
+                        </span>
+                    </label>
+
+                    <label class="opcao">
+                        <input id="numero" class="checkbox"
+                            type="checkbox" checked>
+                        <span class="caixa-visual"></span>
+                        <span class="opcao-texto">
+                            <strong>Números</strong>
+                            <small>123456</small>
+                        </span>
+                    </label>
+
+                    <label class="opcao">
+                        <input id="simbolo" class="checkbox"
+                            type="checkbox">
+                        <span class="caixa-visual"></span>
+                        <span class="opcao-texto">
+                            <strong>Símbolos</strong>
+                            <small>!@#$%&amp;*</small>
+                        </span>
+                    </label>
+                </div>
+            </section>
+
+            <div class="divisor"></div>
+
+            <section class="parametro-senha">
+                <div class="linha-titulo">
+                    <h2>Força da senha</h2>
+                    <span id="texto-forca" class="nivel-forca">Forte</span>
+                </div>
+
+                <div
+                    class="barra"
+                    role="progressbar"
+                    aria-label="Força estimada da senha"
+                    aria-valuemin="0"
+                    aria-valuemax="3"
+                    aria-valuenow="3"
+                    id="barra-progresso"
+                >
+                    <div class="barra-preenchimento" id="forca-senha"></div>
+                </div>
+
+                <div class="parametro-senha-textos">
+                    <span>Fraca</span>
+                    <span>Média</span>
+                    <span>Forte</span>
+                </div>
+
+                <p class="entropia" id="entropia">
+                    Sua senha está protegida.
+                </p>
+            </section>
+
+            <button type="button" id="gerar-novamente" class="botao-gerar">
+                ↻ &nbsp; Gerar nova senha
+            </button>
+        </section>
+
+        <footer>
+            <span>◆</span> Sua segurança começa com uma boa senha.
+        </footer>
+    </main>
+</body>
+</html>
