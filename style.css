@@ -1,64 +1,186 @@
 
-.parametro-senha-botoes {
-    display: flex;
-    justify-content: center;
+const campoSenha = document.querySelector('#campo-senha');
+const botaoCopiar = document.querySelector('#copiar-senha');
+const mensagemCopia = document.querySelector('#mensagem-copia');
+
+const controleTamanho = document.querySelector('#tamanho');
+const valorTamanho = document.querySelector('#valor-tamanho');
+const botaoDiminuir = document.querySelector('#diminuir');
+const botaoAumentar = document.querySelector('#aumentar');
+
+const checkboxes = document.querySelectorAll('.checkbox');
+const barraForca = document.querySelector('#forca-senha');
+const barraProgresso = document.querySelector('#barra-progresso');
+const textoForca = document.querySelector('#texto-forca');
+const entropiaTexto = document.querySelector('#entropia');
+
+const botaoGerar = document.querySelector('#gerar-novamente');
+
+const caracteres = {
+    maiusculo: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    minusculo: 'abcdefghijklmnopqrstuvwxyz',
+    numero: '0123456789',
+    simbolo: '!@#$%&*?_-+=',
+};
+
+function obterCaracteres() {
+    let alfabeto = '';
+    const gruposSelecionados = [];
+
+    checkboxes.forEach((checkbox) => {
+        if (checkbox.checked) {
+            alfabeto += caracteres[checkbox.id];
+            gruposSelecionados.push(caracteres[checkbox.id]);
+        }
+    });
+
+    return { alfabeto, gruposSelecionados };
 }
 
-.parametro-senha__botao {
-    background-color: var(--fundo-texto);
-    color: var(--branco);
-    border: 2px solid var(--borda);
-    padding: 24px;
-    font-size: 24px;
-    cursor: pointer;
+function numeroAleatorio(maximo) {
+    const array = new Uint32Array(1);
+    const limite = Math.floor(4294967296 / maximo) * maximo;
+
+    do {
+        crypto.getRandomValues(array);
+    } while (array[0] >= limite);
+
+    return array[0] % maximo;
 }
 
-.parametro-senha__texto {
-    padding: 24px;
-    border-top: 2px solid var(--borda);
-    border-bottom: 2px solid var(--borda);
-    margin: 0;
-    font-size: 24px;
+function embaralhar(lista) {
+    for (let i = lista.length - 1; i > 0; i--) {
+        const j = numeroAleatorio(i + 1);
+        [lista[i], lista[j]] = [lista[j], lista[i]];
+    }
+
+    return lista;
 }
 
-label {
-    font-size: 20px;
+function atualizarTamanho() {
+    const tamanho = Number(controleTamanho.value);
+
+    valorTamanho.textContent = tamanho;
+    botaoDiminuir.disabled = tamanho <= 1;
+    botaoAumentar.disabled = tamanho >= 20;
 }
 
-.checkbox {
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
+function classificarForca(entropia) {
+    let nivel;
+    let cor;
+    let largura;
+    let descricao;
+
+    if (entropia === 0) {
+        nivel = '—';
+        cor = '#64748b';
+        largura = '0%';
+        descricao = 'Selecione pelo menos uma característica.';
+    } else if (entropia < 40) {
+        nivel = 'Fraca';
+        cor = '#fb5268';
+        largura = '25%';
+        descricao = 'Sua senha pode ser mais difícil de adivinhar. Aumente o tamanho ou adicione outros caracteres.';
+    } else if (entropia < 70) {
+        nivel = 'Média';
+        cor = '#fbbf24';
+        largura = '60%';
+        descricao = 'Boa! Você pode aumentar o tamanho e combinar mais tipos de caracteres.';
+    } else {
+        nivel = 'Forte';
+        cor = '#34d399';
+        largura = '100%';
+        descricao = 'Ótimo! Sua senha tem uma boa estimativa de resistência a tentativas de adivinhação.';
+    }
+
+    textoForca.textContent = nivel;
+    textoForca.style.color = cor;
+    barraForca.style.width = largura;
+    barraForca.style.backgroundColor = cor;
+    barraProgresso.setAttribute(
+        'aria-valuenow',
+        entropia === 0 ? 0 : entropia < 40 ? 1 : entropia < 70 ? 2 : 3
+    );
+
+    entropiaTexto.textContent = descricao;
 }
 
-.barra {
-    background-color: var(--fundo-senha);
-    height: 30px;
-    width: 100%;
+function geraSenha() {
+    atualizarTamanho();
+    mensagemCopia.textContent = '';
+
+    const { alfabeto, gruposSelecionados } = obterCaracteres();
+    const tamanho = Number(controleTamanho.value);
+
+    if (!alfabeto || !gruposSelecionados.length) {
+        campoSenha.value = '';
+        classificarForca(0);
+        entropiaTexto.textContent =
+            'Selecione pelo menos uma característica da senha.';
+        return;
+    }
+
+    // Garante pelo menos um caractere de cada grupo selecionado.
+    const senhaCaracteres = gruposSelecionados.map((grupo) => {
+        return grupo[numeroAleatorio(grupo.length)];
+    });
+
+    while (senhaCaracteres.length < tamanho) {
+        senhaCaracteres.push(alfabeto[numeroAleatorio(alfabeto.length)]);
+    }
+
+    embaralhar(senhaCaracteres);
+
+    campoSenha.value = senhaCaracteres.join('');
+
+    const entropia = tamanho * Math.log2(alfabeto.length);
+    classificarForca(entropia);
 }
 
-.forca {
-    height: 30px;
-    position: relative;
-    bottom: 30px;
-}
+botaoDiminuir.addEventListener('click', () => {
+    controleTamanho.value = Math.max(
+        1,
+        Number(controleTamanho.value) - 1
+    );
 
-.fraca {
-    width: 25%;
-    background-color: #E71B32;
-}
+    geraSenha();
+});
 
-.media {
-    background-color: #FAF408;
-    width: 50%;
-}
+botaoAumentar.addEventListener('click', () => {
+    controleTamanho.value = Math.min(
+        20,
+        Number(controleTamanho.value) + 1
+    );
 
-.forte {
-    background-color: #00FF85;
-    width: 100%;
-}
+    geraSenha();
+});
 
-.parametro-senha-textos {
-    display: flex;
-    justify-content: space-between;
-}
+controleTamanho.addEventListener('input', geraSenha);
+
+checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', geraSenha);
+});
+
+botaoGerar.addEventListener('click', geraSenha);
+
+botaoCopiar.addEventListener('click', async () => {
+    if (!campoSenha.value) {
+        mensagemCopia.textContent = 'Gere uma senha primeiro.';
+        return;
+    }
+
+    try {
+        await navigator.clipboard.writeText(campoSenha.value);
+        mensagemCopia.textContent = '✓ Senha copiada com sucesso!';
+    } catch {
+        campoSenha.select();
+
+        const copiou = document.execCommand('copy');
+
+        mensagemCopia.textContent = copiou
+            ? '✓ Senha copiada com sucesso!'
+            : 'Não foi possível copiar. Selecione e copie a senha.';
+    }
+});
+
+geraSenha();
